@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered SEO Content Rewriter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .result-section h3 {
+            margin-top: 10px;
+        }
+        .result-section pre {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>AI-Powered SEO Content Rewriter</h1>
+        <label for="url">Enter URL:</label>
+        <input type="text" id="url" placeholder="https://example.com">
+         
+        <label for="keywords">Enter Keywords (comma separated):</label>
+        <input type="text" id="keywords" placeholder="seo, ai, content">
+
+        <button onclick="analyzeSEO()">Analyze SEO</button>
+
+        <div class="result-section" id="seo-suggestions">
+            <h2>SEO Suggestions:</h2>
+            <div>
+                <h3>Title:</h3>
+                <p id="title"></p>
+            </div>
+            <div>
+                <h3>Meta Description:</h3>
+                <p id="meta-description"></p>
+            </div>
+            <div>
+                <h3>Body Text:</h3>
+                <pre id="body-text"></pre>
+            </div>
+        </div>
+
+        <div id="error-message" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function analyzeSEO() {
+            const url = document.getElementById('url').value;
+            const keywords = document.getElementById('keywords').value;
+
+            // Clear previous results
+            document.getElementById('seo-suggestions').style.display = 'none';
+            document.getElementById('title').innerText = '';
+            document.getElementById('meta-description').innerText = '';
+            document.getElementById('body-text').innerText = '';
+
+            // Validate URL and keywords
+            if (!url || !keywords) {
+                document.getElementById('error-message').innerText = 'Please enter both a URL and keywords.';
+                document.getElementById('error-message').style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        keywords: keywords.split(',').map(keyword => keyword.trim())
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch SEO analysis');
+                }
+
+                const data = await response.json();
+
+                // Display the results
+                document.getElementById('title').innerText = data.title || 'No title found';
+                document.getElementById('meta-description').innerText = data.meta_description || 'No meta description found';
+                document.getElementById('body-text').innerText = data.body_text || 'No body text found';
+
+                // Show the result section
+                document.getElementById('seo-suggestions').style.display = 'block';
+            } catch (error) {
+                document.getElementById('error-message').innerText = `Error: ${error.message}`;
+                document.getElementById('error-message').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
